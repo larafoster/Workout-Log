@@ -1,7 +1,7 @@
 {
   "name": "mongoose_skeleton",
   "version": "1.0.0",
-  "description": "",
+  "description": "A web application that allows user to track their workout progress to better meet their fitness goals.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
