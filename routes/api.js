@@ -1,34 +1,66 @@
-const router = require("express").Router();
-const Workout = require("../models/workout.js");
+const router = require ('express').Router ();
+const Workout = require ('../models/workout.js');
 
-router.post("/api/workout", ({ body }, res) => {
-  Workout.create(body)
-    .then(dbWorkout => {
-      res.json(dbWorkout);
+//create new exercise
+router.post ('/api/workouts', ({body}, res) => {
+  Workout.create (body)
+    .then (dbWorkout => {
+      res.json (dbWorkout);
     })
-    .catch(err => {
-      res.status(400).json(err);
+    .catch (err => {
+      res.status (400).json (err);
     });
 });
 
-router.post("/api/workout/bulk", ({ body }, res) => {
-  Workout.insertMany(body)
-    .then(dbWorkout => {
-      res.json(dbWorkout);
+//https://stackoverflow.com/questions/46255895/why-isnt-my-mongoose-findbyidandupdate-query-updating-in-the-database
+router.put ('/api/workouts/:id', (req, res) => {
+  Workout.findByIdAndUpdate (
+    req.params.id,
+    {$push: {exercise: req.body.item}},
+    {new: true, upsert: true}
+  )
+    .then (dbWorkout => {
+      res.json (dbWorkout);
     })
-    .catch(err => {
-      res.status(400).json(err);
+    .catch (err => {
+      res.json (err);
     });
 });
 
-router.get("/api/workout", (req, res) => {
-  Workout.find({})
-    .sort({ date: -1 })
-    .then(dbWorkout => {
-      res.json(dbWorkout);
+//docs The following operation uses two $addFields stages to include three new fields in the output documents. For this just one is needed
+router.get ('/api/workouts', (req, res) => {
+  Workout.aggregate ([
+    {
+      $addFields: {
+        totalDuration: {$sum: '$exercises.duration'},
+      },
+    },
+  ])
+    .then (dbWorkout => {
+      res.json (dbWorkout);
     })
-    .catch(err => {
-      res.status(400).json(err);
+    .catch (err => {
+      res.status (400).json (err);
+    });
+});
+//Get getWorkoutsInRange fetch(`/api/workouts/range` -1 at index limit 7 workout._id
+router.get ('/api/workouts/range', (req, res) => {
+  Workout.aggregate([
+    {
+      $addFields: {
+        totalDuration: {
+          $sum: '$exercises.duration',
+        },
+      },
+    },
+  ])
+    .sort({ _id: -1 }) //17 mini
+    .limit(7) //How to sort and limit the returned query results in mongoose
+    .then((dbWorkouts) => {
+      res.json(dbWorkouts);
+    })
+    .catch((err) => {
+      res.json(err);
     });
 });
 
