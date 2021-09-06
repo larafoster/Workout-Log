@@ -25,7 +25,7 @@ mongoose.connect(
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-  },
+  }, //https://coding-boot-camp.github.io/full-stack/mongodb/deploy-with-heroku-and-mongodb-atlas
 );
 // routes
 app.use(require("./routes/api.js"));
